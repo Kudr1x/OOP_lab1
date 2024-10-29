@@ -6,6 +6,8 @@ import io.ktor.client.plugins.logging.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.awt.Desktop
+import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -22,7 +24,8 @@ data class Query(
 @Serializable
 data class SearchResult(
     val title: String,
-    val snippet: String
+    val snippet: String,
+    val pageid: Int
 )
 
 private val json = Json {
@@ -31,6 +34,19 @@ private val json = Json {
 
 fun removeHtmlTags(input: String): String {
     return input.replace(Regex("<[^>]*>"), "")
+}
+
+fun openUrlInBrowser(url: String) {
+    if (Desktop.isDesktopSupported()) {
+        try {
+            val desktop = Desktop.getDesktop()
+            desktop.browse(URI(url))
+        } catch (e: Exception) {
+            println("Ошибка при открытии URL: ${e.message}")
+        }
+    } else {
+        println("Desktop не поддерживается, не удается открыть URL.")
+    }
 }
 
 fun main() {
@@ -58,8 +74,15 @@ fun main() {
             for (result in searchResult.query.search) {
                 val cleanSnippet = removeHtmlTags(result.snippet)
                 println("Title: ${result.title}")
-                println("Snippet: $cleanSnippet\n")
+                print("Snippet: $cleanSnippet\n")
+                println("Snippet: ${result.pageid}")
+                println()
             }
+
+            val urlToOpen = "https://ru.wikipedia.org/w/index.php?curid=${searchResult.query.search[0].pageid}"
+
+            openUrlInBrowser(urlToOpen)
+
         } catch (e: Exception) {
             println("Error occurred: ${e.message}")
         } finally {
