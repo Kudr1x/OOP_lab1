@@ -8,10 +8,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import service.WikiService
 
+const val DEBUG: Boolean = false
+
 fun main() = runBlocking {
     val client = HttpClient(CIO) {
-        install(Logging) {
-            level = LogLevel.INFO
+        if(DEBUG){
+            install(Logging) {
+                level = LogLevel.INFO
+            }
         }
     }
 
@@ -23,7 +27,7 @@ fun main() = runBlocking {
     val wikiController = WikiController(wikiService)
 
     print("Введите запрос: ")
-    val input = readLine()?.trim() ?: ""
+    val input = readlnOrNull()?.trim() ?: ""
 
     try {
         wikiController.performSearch(input)

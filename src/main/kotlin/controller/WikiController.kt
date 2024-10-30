@@ -1,13 +1,12 @@
 package controller
 
 import model.WikiSearchResponse
-import service.WikiService
+import service.WikiServiceInterface
 import utils.DesktopUtils.openUrlInBrowser
 import utils.StringUtils
 
-class WikiController(private val wikiService: WikiService) {
-
-    suspend fun performSearch(query: String) {
+class WikiController(private val wikiService: WikiServiceInterface) : WikiControllerInterface {
+    override suspend fun performSearch(query: String) {
         val searchResult: WikiSearchResponse = wikiService.search(query)
 
         for (result in searchResult.query.search) {
